@@ -10,6 +10,22 @@ export V=6.0
 # Scripts in /system/addon.d expect to find backuptool.functions in /tmp
 cp -f /tmp/install/bin/backuptool.functions /tmp
 
+# Backup fonts
+preserve_fonts() {
+  mkdir -p /tmp/fonts
+  cp -a /system/fonts/Roboto* /tmp/fonts/
+  chmod 644 /tmp/fonts/*.ttf
+}
+
+# Restore fonts
+restore_fonts() {
+  if [ -d /system/fonts/ ]; then
+    cp -a /tmp/fonts/* /system/fonts/
+    rm -rf /tmp/fonts
+    chmod 644 /tmp/fonts/*.ttf
+  fi
+}
+
 # Preserve /system/addon.d in /tmp/addon.d
 preserve_addon_d() {
   if [ -d /system/addon.d/ ]; then
@@ -88,6 +104,7 @@ case "$1" in
     fi
     check_blacklist system
     preserve_addon_d
+    preserve_fonts
     run_stage pre-backup
     run_stage backup
     run_stage post-backup
@@ -103,6 +120,7 @@ case "$1" in
     run_stage restore
     run_stage post-restore
     restore_addon_d
+    restore_fonts
     rm -rf $C
     sync
   ;;
